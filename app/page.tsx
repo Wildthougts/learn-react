@@ -1,35 +1,86 @@
+"use client";
+
+import { Input } from "@/components/ui/input";
 import { MovieCard } from "./components/MovieCard";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { searchMovies, getPopularMovies } from "./services/movies";
+
+import { Movie } from "./types/movie";
 
 export default function Home() {
-  const movies = [
-    { id: 1, title: "John Wick", release_date: "2020", url: "/vercel.svg" },
-    { id: 2, title: "Sider Man", release_date: "2009", url: "/vercel.svg" },
-    { id: 3, title: "Avengers", release_date: "2021", url: "/vercel.svg" },
-  ];
-  const movieNumber = 1;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadPopularMovies();
+  }, []);
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      // If search is empty, load popular movies
+      loadPopularMovies();
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await searchMovies(searchQuery);
+      setMovies(data.results);
+    } catch (error) {
+      console.log(error);
+      setError("couldn't search movies");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadPopularMovies = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getPopularMovies();
+      setMovies(data.results);
+    } catch (error) {
+      console.log(error);
+      setError("couldn't fetch Movies");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-24">
       <main className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
-        {movieNumber === 1 ? (
-          <MovieCard
-            movie={{
-              title: "Deon Movie",
-              url: "/vercel.svg",
-              release_date: "2-4-2026",
+        <div className="col-span-full">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearch();
             }}
-          />
-        ) : (
-          <MovieCard
-            movie={{
-              title: "Wildthought's Movie",
-              url: "/vercel.svg",
-              release_date: "2-4-2026",
-            }}
-          />
+            className="flex gap-2"
+          >
+            <Input
+              type="search"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Button type="submit">Search</Button>
+          </form>
+        </div>
+        {loading && (
+          <div className="col-span-full text-center">Loading movies...</div>
         )}
+        {error && (
+          <div className="col-span-full text-center text-red-500">{error}</div>
+        )}
+        {!loading &&
+          !error &&
+          movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
       </main>
     </div>
   );

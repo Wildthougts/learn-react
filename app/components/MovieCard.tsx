@@ -10,11 +10,9 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 
-export type movie = {
-  title: string;
-  url: string;
-  release_date: string;
-};
+import { Movie } from "../types/movie";
+
+export type movie = Movie;
 
 export function MovieCard({ movie }: { movie: movie }) {
   function onfavoriteClick() {
@@ -22,10 +20,10 @@ export function MovieCard({ movie }: { movie: movie }) {
   }
 
   return (
-    <Card className="max-w-lg w-full flex flex-col md:flex-row overflow-hidden">
+    <Card className="p-0 max-w-lg w-full flex flex-col md:flex-row overflow-hidden">
       <div className="md:w-1/3 shrink-0">
         <Image
-          src={movie.url}
+          src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
           alt={movie.title}
           width={150}
           height={150}
