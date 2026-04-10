@@ -27,7 +27,7 @@ export function MovieCard({ movie }: { movie: movie }) {
           alt={movie.title}
           width={150}
           height={150}
-          className="w-full h-auto object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none"
+          className="w-full h-full object-cover rounded-t-lg md:rounded-l-lg md:rounded-t-none"
         />
       </div>
       <div className="flex flex-col justify-between flex-1 p-4">
